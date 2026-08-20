@@ -1,0 +1,57 @@
+{
+  "type": "FeatureCollection",
+  "name": "roadside_station_diff",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::4019"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "P35_001": 36.3228561,
+        "P35_002": 139.9934159,
+        "P35_003": "茨城県",
+        "P35_004": "筑西市",
+        "P35_005": "12102",
+        "P35_006": "グランテラス筑西"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.9934159, 36.3228561]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "P35_001": 36.356026,
+        "P35_002": 140.2741238,
+        "P35_003": "茨城県",
+        "P35_004": "笠間市",
+        "P35_005": "12102",
+        "P35_006": "かさま"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [140.2741238, 36.356026]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "P35_001": 36.0834856,
+        "P35_002": 139.985314,
+        "P35_003": "茨城県",
+        "P35_004": "常総市",
+        "P35_005": "12102",
+        "P35_006": "常総"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.985314, 36.0834856]
+      }
+    }
+  ]
+}

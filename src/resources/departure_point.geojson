@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "name": "departure_point",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::4019"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "P35_001": 35.65883533,
+        "P35_002": 140.0126102,
+        "P35_003": "千葉県",
+        "P35_004": "千葉市花見川区",
+        "P35_005": "12102",
+        "P35_006": "幕張駅"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [140.0126102, 35.65883533]
+      }
+    }
+  ]
+}
