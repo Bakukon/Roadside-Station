@@ -7,6 +7,7 @@ from app.models.geometry_point import GeometryPoint
 from app.models.route import Route
 from app.models.tsp_answer import TSPAnswer
 
+
 class SolverContext(Protocol):
     michinoekis: Sequence[GeometryPoint]
     start_point: GeometryPoint
@@ -14,10 +15,11 @@ class SolverContext(Protocol):
     def find_edge_from(self, point: GeometryPoint) -> list[Route]: ...
     def submit_answer(self, routes: list[Route]) -> TSPAnswer: ...
 
+
 def solve(context: SolverContext) -> TSPAnswer:
     unvisited: set[GeometryPoint] = set(context.michinoekis)
     unvisited.discard(context.start_point)
-    
+
     ans: list[Route] = []
     current = context.start_point
 
@@ -31,12 +33,17 @@ def solve(context: SolverContext) -> TSPAnswer:
         current = selected.to
 
     if ans:
-        return_route = next(r for r in context.find_edge_from(current) if r.to == context.start_point)
+        return_route = next(
+            r for r in context.find_edge_from(current) if r.to == context.start_point
+        )
         ans.append(return_route)
 
     return context.submit_answer(ans)
 
-def _nearest_unvisited(routes: list[Route], unvisited: set[GeometryPoint]) -> Route | None:
+
+def _nearest_unvisited(
+    routes: list[Route], unvisited: set[GeometryPoint]
+) -> Route | None:
     min_route: Route | None = None
     for r in routes:
         if r.to not in unvisited:
