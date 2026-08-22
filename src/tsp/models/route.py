@@ -4,8 +4,8 @@ import json
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 
-from app.json_route import JsonRoute
-from app.models.geometry_point import GeometryPoint
+from tsp.json_route import JsonRoute
+from tsp.models.geometry_point import GeometryPoint
 
 
 class Route:

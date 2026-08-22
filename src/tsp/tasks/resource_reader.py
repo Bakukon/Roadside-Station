@@ -4,8 +4,8 @@ from collections.abc import Collection
 import geojson
 import pandas as pd
 
-from app.models.geometry_point import GeometryPoint
-from app.tasks import tasks
+from tsp.models.geometry_point import GeometryPoint
+from tsp.tasks import tasks
 
 
 def extract_visited_stations(

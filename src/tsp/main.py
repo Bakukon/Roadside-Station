@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from app.clients.ors_client import OrsClient
-from app.clients.route_cache import RouteCache
-from app.geojson_writer import write_geojson
-# from app.solvers.nearest_neighbor import solve
-from app.models.tsp_context import TspContext
-from app.solvers.held_karp import solve as held_karp_solve
-from app.tasks import resource_reader, tasks
-from app.values import Const, Env
+from tsp.clients.ors_client import OrsClient
+from tsp.clients.route_cache import RouteCache
+from tsp.geojson_writer import write_geojson
+# from tsp.solvers.nearest_neighbor import solve as NN_solve
+from tsp.models.tsp_context import TspContext
+from tsp.solvers.held_karp import solve as held_karp_solve
+from tsp.tasks import resource_reader, tasks
+from tsp.values import Const, Env
 
 
 def main() -> None:
@@ -24,7 +24,7 @@ def main() -> None:
     route_cache = RouteCache(Const.ROUTE_CACHE_PATH, michinoekis)
     context = TspContext(michinoekis, departure, ors_client, route_cache)
 
-    # initial_answer = solve(context)
+    # initial_answer = NN_solve(context)
     answer = held_karp_solve(context)
     write_geojson(answer, Const.OUTPUT_PATH)
 

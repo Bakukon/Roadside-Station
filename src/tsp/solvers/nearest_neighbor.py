@@ -3,9 +3,9 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Protocol
 
-from app.models.geometry_point import GeometryPoint
-from app.models.route import Route
-from app.models.tsp_answer import TSPAnswer
+from tsp.models.geometry_point import GeometryPoint
+from tsp.models.route import Route
+from tsp.models.tsp_answer import TSPAnswer
 
 
 class SolverContext(Protocol):

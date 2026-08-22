@@ -6,9 +6,9 @@ from datetime import timedelta
 
 import requests
 
-from app.models.geometry_point import GeometryPoint
-from app.models.route import Route
-from app.values import Const
+from tsp.models.geometry_point import GeometryPoint
+from tsp.models.route import Route
+from tsp.values import Const
 
 _MAX_ATTEMPTS = 3
 _RETRY_WAIT_SECONDS = 5.0

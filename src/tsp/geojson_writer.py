@@ -4,8 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
-from app.models.route import Route
-from app.models.tsp_answer import TSPAnswer
+from tsp.models.route import Route
+from tsp.models.tsp_answer import TSPAnswer
 
 
 def write_geojson(answer: TSPAnswer, output_path: Path) -> None:

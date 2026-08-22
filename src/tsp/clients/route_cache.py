@@ -4,9 +4,9 @@ import json
 from collections.abc import Sequence
 from pathlib import Path
 
-from app.json_route import JsonRoute
-from app.models.geometry_point import GeometryPoint
-from app.models.route import Route
+from tsp.json_route import JsonRoute
+from tsp.models.geometry_point import GeometryPoint
+from tsp.models.route import Route
 
 class RouteCache:
     def __init__(self, cache_path: Path,  all_points: Sequence[GeometryPoint]) -> None:

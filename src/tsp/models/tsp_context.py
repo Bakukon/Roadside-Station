@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from app.clients.ors_client import OrsClient
-from app.clients.route_cache import RouteCache
-from app.models.geometry_point import GeometryPoint
-from app.models.route import Route
-from app.models.tsp_answer import TSPAnswer
+from tsp.clients.ors_client import OrsClient
+from tsp.clients.route_cache import RouteCache
+from tsp.models.geometry_point import GeometryPoint
+from tsp.models.route import Route
+from tsp.models.tsp_answer import TSPAnswer
 
 
 class TspContext:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import timedelta
 
-from app.models import route
+from tsp.models import route
 
 
 class TSPAnswer:

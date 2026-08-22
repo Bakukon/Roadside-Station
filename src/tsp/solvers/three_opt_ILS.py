@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import random
 
-from app.models.geometry_point import GeometryPoint
-from app.solvers.nearest_neighbor import SolverContext
-from app.models.route import Route
-from app.models.tsp_answer import TSPAnswer
+from tsp.models.geometry_point import GeometryPoint
+from tsp.solvers.nearest_neighbor import SolverContext
+from tsp.models.route import Route
+from tsp.models.tsp_answer import TSPAnswer
 
 EdgeMap = dict[tuple[GeometryPoint, GeometryPoint], Route]
 
