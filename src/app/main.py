@@ -3,9 +3,9 @@ from __future__ import annotations
 from app.clients.ors_client import OrsClient
 from app.clients.route_cache import RouteCache
 from app.geojson_writer import write_geojson
-from app.models.nearest_neighbor import solve
+# from app.solvers.nearest_neighbor import solve
 from app.models.tsp_context import TspContext
-from app.models.two_opt_LS import solve as two_opt_solve
+from app.solvers.held_karp import solve as held_karp_solve
 from app.tasks import resource_reader, tasks
 from app.values import Const, Env
 
@@ -24,8 +24,8 @@ def main() -> None:
     route_cache = RouteCache(Const.ROUTE_CACHE_PATH, michinoekis)
     context = TspContext(michinoekis, departure, ors_client, route_cache)
 
-    initial_answer = solve(context)
-    answer = two_opt_solve(context, initial_answer)
+    # initial_answer = solve(context)
+    answer = held_karp_solve(context)
     write_geojson(answer, Const.OUTPUT_PATH)
 
 

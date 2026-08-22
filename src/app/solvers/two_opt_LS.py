@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.models.geometry_point import GeometryPoint
-from app.models.nearest_neighbor import SolverContext
+from app.solvers.nearest_neighbor import SolverContext
 from app.models.route import Route
 from app.models.tsp_answer import TSPAnswer
 
