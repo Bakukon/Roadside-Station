@@ -3,9 +3,9 @@ from __future__ import annotations
 from tsp.clients.ors_client import OrsClient
 from tsp.clients.route_cache import RouteCache
 from tsp.geojson_writer import write_geojson
-# from tsp.solvers.nearest_neighbor import solve as NN_solve
+from tsp.solvers.nearest_neighbor import solve as NN_solve
 from tsp.models.tsp_context import TspContext
-from tsp.solvers.held_karp import solve as held_karp_solve
+# from tsp.solvers.held_karp import solve as held_karp_solve
 from tsp.tasks import resource_reader, tasks
 from tsp.values import Const, Env
 
@@ -25,7 +25,7 @@ def main() -> None:
     context = TspContext(michinoekis, departure, ors_client, route_cache)
 
     # initial_answer = NN_solve(context)
-    answer = held_karp_solve(context)
+    answer = NN_solve(context)
     write_geojson(answer, Const.OUTPUT_PATH)
 
 

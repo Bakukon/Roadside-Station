@@ -44,6 +44,7 @@ class OrsClient:
             "api_key": self._api_key,
             "start": f"{from_.longitude},{from_.latitude}",
             "end": f"{to.longitude},{to.latitude}",
+            "options": json.dumps({"avoid_features": ["tollways"]}),
         }
 
         response = requests.get(url, params=params, timeout=_TIMEOUT_SECONDS)

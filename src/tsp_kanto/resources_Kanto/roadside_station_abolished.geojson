@@ -1,0 +1,27 @@
+{
+"type": "FeatureCollection",
+"name": "abolished roadside stations",
+"crs": {
+    "type": "name",
+    "properties": {
+    "name": "urn:ogc:def:crs:EPSG::4019"
+    }
+},
+"features": [
+    {
+    "type": "Feature",
+    "properties": {
+        "P35_001": 34.939841,
+        "P35_002": 139.821626,
+        "P35_003": "千葉県",
+        "P35_004": "館山市",
+        "P35_005": "12102",
+        "P35_006": "南房パラダイス"
+    },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [139.821626, 34.939841]
+    }
+    }
+]
+}
