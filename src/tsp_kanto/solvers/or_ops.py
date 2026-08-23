@@ -3,14 +3,11 @@ from __future__ import annotations
 import random
 
 from tsp_kanto.models.geometry_point import GeometryPoint
+from tsp_kanto.models.helpers import EdgeMap, build_edge_map, double_bridge, tour_distance
 from tsp_kanto.solvers.nearest_neighbor import SolverContext
-from tsp_kanto.models.route import Route
 from tsp_kanto.models.tsp_answer import TSPAnswer
 
-EdgeMap = dict[tuple[GeometryPoint, GeometryPoint], Route]
-
 _DEFAULT_ITERATIONS = 100
-_MIN_POINTS_FOR_PERTURBATION = 8
 _SEGMENT_LENGTHS = (1, 2, 3)
 
 
@@ -20,28 +17,20 @@ def solve(
     iterations: int = _DEFAULT_ITERATIONS,
     seed: int | None = None,
 ) -> TSPAnswer:
-    edges = _build_edge_map(context)
+    edges = build_edge_map(context)
     rng = random.Random(seed)
 
     best_tour = _local_search([context.start_point, *(r.to for r in initial.routes)], edges)
-    best_distance = _tour_distance(best_tour, edges)
+    best_distance = tour_distance(best_tour, edges)
 
     for _ in range(iterations):
-        candidate = _local_search(_double_bridge(best_tour, rng), edges)
-        candidate_distance = _tour_distance(candidate, edges)
+        candidate = _local_search(double_bridge(best_tour, rng), edges)
+        candidate_distance = tour_distance(candidate, edges)
         if candidate_distance < best_distance:
             best_tour, best_distance = candidate, candidate_distance
 
     routes = [edges[(best_tour[k], best_tour[k + 1])] for k in range(len(best_tour) - 1)]
     return context.submit_answer(routes)
-
-
-def _build_edge_map(context: SolverContext) -> EdgeMap:
-    edges: EdgeMap = {}
-    for point in context.michinoekis:
-        for route in context.find_edge_from(point):
-            edges[(point, route.to)] = route
-    return edges
 
 
 def _local_search(tour: list[GeometryPoint], edges: EdgeMap) -> list[GeometryPoint]:
@@ -61,34 +50,46 @@ def _local_search(tour: list[GeometryPoint], edges: EdgeMap) -> list[GeometryPoi
 def _best_or_opt_move(
     tour: list[GeometryPoint], edges: EdgeMap, i: int, length: int
 ) -> list[GeometryPoint] | None:
-    # 開始/終了ノード(道の駅の出発点)を保持したまま、長さlengthの区間を他の位置へ移動する
+    # 開始/終了ノード(道の駅の出発点)を保持したまま、長さlengthの区間を他の位置へ移動する。
+    # 移動後のコストは、区間の付け根2辺と挿入先の1辺だけで決まる（区間内部の辺は不変）ため、
+    # O(N)の巡回路全体再計算は不要。ただし距離が対称(d(A,B)=d(B,A))であることが前提。
+    # 挿入先が区間を取り除いた直後の隙間(remainder[i-1]の位置)の場合だけ、
+    # 迂回辺がまだ存在しないため式が変わる。
     segment = tour[i : i + length]
     remainder = tour[:i] + tour[i + length :]
+    s_first, s_last = segment[0], segment[-1]
+    prev, after = tour[i - 1], tour[i + length]
 
-    best_distance = _tour_distance(tour, edges)
-    best_tour: list[GeometryPoint] | None = None
+    def dist(x: GeometryPoint, y: GeometryPoint) -> int:
+        return edges[(x, y)].distance_meters
+
+    boundary_removed = dist(prev, s_first) + dist(s_last, after)
+    bypass = dist(prev, after)
+
+    best_gain = 0
+    best_j: int | None = None
+    best_reversed = False
 
     for j in range(len(remainder) - 1):
-        for seg in (segment, segment[::-1]):
-            candidate = remainder[: j + 1] + seg + remainder[j + 1 :]
-            distance = _tour_distance(candidate, edges)
-            if distance < best_distance:
-                best_distance = distance
-                best_tour = candidate
+        x, y = remainder[j], remainder[j + 1]
+        if j == i - 1:
+            removed = boundary_removed
+            forward_added = boundary_removed
+            reversed_added = dist(prev, s_last) + dist(s_first, after)
+        else:
+            removed = boundary_removed + dist(x, y)
+            forward_added = bypass + dist(x, s_first) + dist(s_last, y)
+            reversed_added = bypass + dist(x, s_last) + dist(s_first, y)
 
-    return best_tour
+        if removed - forward_added > best_gain:
+            best_gain = removed - forward_added
+            best_j, best_reversed = j, False
+        if removed - reversed_added > best_gain:
+            best_gain = removed - reversed_added
+            best_j, best_reversed = j, True
 
+    if best_j is None:
+        return None
 
-def _tour_distance(tour: list[GeometryPoint], edges: EdgeMap) -> int:
-    return sum(edges[(tour[k], tour[k + 1])].distance_meters for k in range(len(tour) - 1))
-
-
-def _double_bridge(tour: list[GeometryPoint], rng: random.Random) -> list[GeometryPoint]:
-    inner = tour[:-1]
-    if len(inner) < _MIN_POINTS_FOR_PERTURBATION:
-        return list(tour)
-
-    p1, p2, p3 = sorted(rng.sample(range(1, len(inner)), 3))
-    a, b, c, d = inner[:p1], inner[p1:p2], inner[p2:p3], inner[p3:]
-    new_inner = a + c + b + d
-    return [*new_inner, new_inner[0]]
+    seg = segment[::-1] if best_reversed else segment
+    return remainder[: best_j + 1] + seg + remainder[best_j + 1 :]

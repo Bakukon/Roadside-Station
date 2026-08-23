@@ -3,14 +3,11 @@ from __future__ import annotations
 import random
 
 from tsp_kanto.models.geometry_point import GeometryPoint
+from tsp_kanto.models.helpers import EdgeMap, build_edge_map, double_bridge, tour_distance
 from tsp_kanto.solvers.nearest_neighbor import SolverContext
-from tsp_kanto.models.route import Route
 from tsp_kanto.models.tsp_answer import TSPAnswer
 
-EdgeMap = dict[tuple[GeometryPoint, GeometryPoint], Route]
-
 _DEFAULT_ITERATIONS = 100
-_MIN_POINTS_FOR_PERTURBATION = 8
 
 
 def solve(
@@ -19,28 +16,20 @@ def solve(
     iterations: int = _DEFAULT_ITERATIONS,
     seed: int | None = None,
 ) -> TSPAnswer:
-    edges = _build_edge_map(context)
+    edges = build_edge_map(context)
     rng = random.Random(seed)
 
     best_tour = _local_search([context.start_point, *(r.to for r in initial.routes)], edges)
-    best_distance = _tour_distance(best_tour, edges)
+    best_distance = tour_distance(best_tour, edges)
 
     for _ in range(iterations):
-        candidate = _local_search(_double_bridge(best_tour, rng), edges)
-        candidate_distance = _tour_distance(candidate, edges)
+        candidate = _local_search(double_bridge(best_tour, rng), edges)
+        candidate_distance = tour_distance(candidate, edges)
         if candidate_distance < best_distance:
             best_tour, best_distance = candidate, candidate_distance
 
     routes = [edges[(best_tour[k], best_tour[k + 1])] for k in range(len(best_tour) - 1)]
     return context.submit_answer(routes)
-
-
-def _build_edge_map(context: SolverContext) -> EdgeMap:
-    edges: EdgeMap = {}
-    for point in context.michinoekis:
-        for route in context.find_edge_from(point):
-            edges[(point, route.to)] = route
-    return edges
 
 
 def _local_search(tour: list[GeometryPoint], edges: EdgeMap) -> list[GeometryPoint]:
@@ -96,18 +85,3 @@ def _best_reconnection(
         a + c[::-1] + b[::-1] + d,
     )
     return reconnections[best_index]
-
-
-def _tour_distance(tour: list[GeometryPoint], edges: EdgeMap) -> int:
-    return sum(edges[(tour[k], tour[k + 1])].distance_meters for k in range(len(tour) - 1))
-
-
-def _double_bridge(tour: list[GeometryPoint], rng: random.Random) -> list[GeometryPoint]:
-    inner = tour[:-1]
-    if len(inner) < _MIN_POINTS_FOR_PERTURBATION:
-        return list(tour)
-
-    p1, p2, p3 = sorted(rng.sample(range(1, len(inner)), 3))
-    a, b, c, d = inner[:p1], inner[p1:p2], inner[p2:p3], inner[p3:]
-    new_inner = a + c + b + d
-    return [*new_inner, new_inner[0]]

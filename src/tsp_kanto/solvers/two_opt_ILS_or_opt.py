@@ -13,6 +13,7 @@ from tsp_kanto.models.helpers import (
 )
 from tsp_kanto.solvers.nearest_neighbor import SolverContext
 from tsp_kanto.models.tsp_answer import TSPAnswer
+from tsp_kanto.solvers.or_ops import _local_search as _or_opt_local_search
 
 _DEFAULT_ITERATIONS = 100
 
@@ -43,6 +44,26 @@ def solve(
 
 
 def _local_search(
+    tour: list[GeometryPoint], edges: EdgeMap, neighbor_lists: NeighborLists
+) -> list[GeometryPoint]:
+    # 2-optとOr-optは改善できる局所最適の形が異なるため、
+    # 一方が変化を生まなくなるまで交互に適用してから終了する。
+    tour = list(tour)
+    changed = True
+    while changed:
+        changed = False
+        two_opt_tour = _two_opt_local_search(tour, edges, neighbor_lists)
+        if two_opt_tour != tour:
+            tour = two_opt_tour
+            changed = True
+        or_opt_tour = _or_opt_local_search(tour, edges)
+        if or_opt_tour != tour:
+            tour = or_opt_tour
+            changed = True
+    return tour
+
+
+def _two_opt_local_search(
     tour: list[GeometryPoint], edges: EdgeMap, neighbor_lists: NeighborLists
 ) -> list[GeometryPoint]:
     tour = list(tour)

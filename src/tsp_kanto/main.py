@@ -4,7 +4,7 @@ from tsp_kanto.clients.distance_client import DistanceClient
 from tsp_kanto.geojson_writer import write_geojson
 from tsp_kanto.models.tsp_context import TspContext
 from tsp_kanto.solvers.nearest_neighbor import solve as NN_solve
-from tsp_kanto.solvers.three_opt_LS import solve as three_opt_LS
+from tsp_kanto.solvers.two_opt_ILS_or_opt import solve as two_opt_ILS_or_ops
 from tsp_kanto.tasks import resource_reader, tasks
 from tsp_kanto.values import Const
 
@@ -28,7 +28,7 @@ def main() -> None:
     context = TspContext(michinoekis, departure, DistanceClient())
 
     initial_answer = NN_solve(context)
-    answer = three_opt_LS(context, initial_answer)
+    answer = two_opt_ILS_or_ops(context, initial_answer)
     write_geojson(answer, Const.OUTPUT_PATH)
 
 

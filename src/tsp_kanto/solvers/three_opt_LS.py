@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from tsp_kanto.models.geometry_point import GeometryPoint
+from tsp_kanto.models.helpers import EdgeMap, build_edge_map
 from tsp_kanto.solvers.nearest_neighbor import SolverContext
-from tsp_kanto.models.route import Route
 from tsp_kanto.models.tsp_answer import TSPAnswer
-
-EdgeMap = dict[tuple[GeometryPoint, GeometryPoint], Route]
 
 
 def solve(context: SolverContext, initial: TSPAnswer) -> TSPAnswer:
-    edges = _build_edge_map(context)
+    edges = build_edge_map(context)
     tour = [context.start_point, *(r.to for r in initial.routes)]
 
     improved = True
@@ -25,14 +23,6 @@ def solve(context: SolverContext, initial: TSPAnswer) -> TSPAnswer:
 
     routes = [edges[(tour[k], tour[k + 1])] for k in range(len(tour) - 1)]
     return context.submit_answer(routes)
-
-
-def _build_edge_map(context: SolverContext) -> EdgeMap:
-    edges: EdgeMap = {}
-    for point in context.michinoekis:
-        for route in context.find_edge_from(point):
-            edges[(point, route.to)] = route
-    return edges
 
 
 def _best_reconnection(

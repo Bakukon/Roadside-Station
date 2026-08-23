@@ -4,11 +4,9 @@ import math
 import random
 
 from tsp_kanto.models.geometry_point import GeometryPoint
+from tsp_kanto.models.helpers import EdgeMap, build_edge_map, tour_distance
 from tsp_kanto.solvers.nearest_neighbor import SolverContext
-from tsp_kanto.models.route import Route
 from tsp_kanto.models.tsp_answer import TSPAnswer
-
-EdgeMap = dict[tuple[GeometryPoint, GeometryPoint], Route]
 
 _DEFAULT_ITERATIONS = 10000
 _COOLING_RATE = 0.9995
@@ -25,11 +23,11 @@ def solve(
     cooling_rate: float = _COOLING_RATE,
     seed: int | None = None,
 ) -> TSPAnswer:
-    edges = _build_edge_map(context)
+    edges = build_edge_map(context)
     rng = random.Random(seed)
 
     current_tour = [context.start_point, *(r.to for r in initial.routes)]
-    current_distance = _tour_distance(current_tour, edges)
+    current_distance = tour_distance(current_tour, edges)
 
     best_tour = list(current_tour)
     best_distance = current_distance
@@ -41,7 +39,7 @@ def solve(
             break
 
         candidate = _perturb(current_tour, rng)
-        candidate_distance = _tour_distance(candidate, edges)
+        candidate_distance = tour_distance(candidate, edges)
         delta = candidate_distance - current_distance
 
         if delta < 0 or rng.random() < math.exp(-delta / temperature):
@@ -63,8 +61,8 @@ def _calibrate_initial_temperature(
     target_acceptance_rate: float = _TARGET_ACCEPTANCE_RATE,
 ) -> float:
     # deltaの分布は歪みが大きいため単純平均ではなく、受理率が目標値に一致する温度を二分探索で求める
-    tour_distance = _tour_distance(tour, edges)
-    deltas = [_tour_distance(_perturb(tour, rng), edges) - tour_distance for _ in range(sample_size)]
+    base_distance = tour_distance(tour, edges)
+    deltas = [tour_distance(_perturb(tour, rng), edges) - base_distance for _ in range(sample_size)]
     worsening_deltas = [d for d in deltas if d > 0]
 
     if not worsening_deltas:
@@ -88,18 +86,6 @@ def _calibrate_initial_temperature(
         else:
             high = mid
     return high
-
-
-def _build_edge_map(context: SolverContext) -> EdgeMap:
-    edges: EdgeMap = {}
-    for point in context.michinoekis:
-        for route in context.find_edge_from(point):
-            edges[(point, route.to)] = route
-    return edges
-
-
-def _tour_distance(tour: list[GeometryPoint], edges: EdgeMap) -> int:
-    return sum(edges[(tour[k], tour[k + 1])].distance_meters for k in range(len(tour) - 1))
 
 
 def _perturb(tour: list[GeometryPoint], rng: random.Random) -> list[GeometryPoint]:
