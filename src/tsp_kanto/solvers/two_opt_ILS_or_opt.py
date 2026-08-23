@@ -15,7 +15,7 @@ from tsp_kanto.solvers.nearest_neighbor import SolverContext
 from tsp_kanto.models.tsp_answer import TSPAnswer
 from tsp_kanto.solvers.or_ops import _local_search as _or_opt_local_search
 
-_DEFAULT_ITERATIONS = 100
+_DEFAULT_ITERATIONS = 500
 
 
 def solve(

@@ -4,9 +4,10 @@ import math
 import random
 
 from tsp_kanto.models.geometry_point import GeometryPoint
-from tsp_kanto.models.helpers import EdgeMap, build_edge_map, tour_distance
+from tsp_kanto.models.helpers import EdgeMap, build_edge_map, build_neighbor_lists, tour_distance
 from tsp_kanto.solvers.nearest_neighbor import SolverContext
 from tsp_kanto.models.tsp_answer import TSPAnswer
+from tsp_kanto.solvers.three_opt_ILS_or_opt import _local_search as _three_opt_or_opt_local_search
 
 _DEFAULT_ITERATIONS = 10000
 _COOLING_RATE = 0.9995
@@ -24,6 +25,7 @@ def solve(
     seed: int | None = None,
 ) -> TSPAnswer:
     edges = build_edge_map(context)
+    neighbor_lists = build_neighbor_lists(context.michinoekis, edges)
     rng = random.Random(seed)
 
     current_tour = [context.start_point, *(r.to for r in initial.routes)]
@@ -44,7 +46,10 @@ def solve(
         if delta < 0 or rng.random() < math.exp(-delta / temperature):
             current_tour, current_distance = candidate, candidate_distance
             if current_distance < best_distance:
-                best_tour, best_distance = list(current_tour), current_distance
+                # ベスト更新時のみ3-opt+Or-optで磨く。改善手しか適用しないため距離が
+                # 悪化することはなく、current_tour(SAの探索軌道)には反映しない。
+                best_tour = _three_opt_or_opt_local_search(current_tour, edges, neighbor_lists)
+                best_distance = tour_distance(best_tour, edges)
 
         temperature *= cooling_rate
 

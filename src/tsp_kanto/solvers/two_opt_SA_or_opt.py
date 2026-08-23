@@ -71,9 +71,10 @@ def _calibrate_initial_temperature(
         return _MIN_TEMPERATURE
 
     def acceptance_rate(temperature: float) -> float:
-        non_worsening_count = len(deltas) - len(worsening_deltas)
-        accepted = non_worsening_count + sum(math.exp(-d / temperature) for d in worsening_deltas)
-        return accepted / len(deltas)
+        # 悪化しない手は温度に関係なく必ず採用されるため、分母・分子から除外する。
+        # 混ぜると、悪化しない手の割合だけで目標値に達してしまい、
+        # 温度によらず最低温度が返る(=悪化する手をほぼ受理しない)ことがある。
+        return sum(math.exp(-d / temperature) for d in worsening_deltas) / len(worsening_deltas)
 
     low, high = _MIN_TEMPERATURE, max(worsening_deltas)
     if acceptance_rate(low) >= target_acceptance_rate:
